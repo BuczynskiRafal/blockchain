@@ -6,6 +6,7 @@ class Blockchain:
     Blockchain: a public ledger of transactions.
     Implemented as a list of blocks - data sets of transactions
     """
+
     def __init__(self):
         self.chain = [Block.genesis()]
 
@@ -13,7 +14,7 @@ class Blockchain:
         self.chain.append(Block.mine_block(self.chain[-1], data))
 
     def __repr__(self):
-        return f'Blockchain: {self.chain}'
+        return f"Blockchain: {self.chain}"
 
     def replace_chain(self, chain):
         """
@@ -22,12 +23,12 @@ class Blockchain:
           - The incoming chain is formatted properly.
         """
         if len(chain) <= len(self.chain):
-            raise Exception('Cannot replace. The incoming chain must be longer.')
+            raise Exception("Cannot replace. The incoming chain must be longer.")
 
         try:
             Blockchain.is_valid_chain(chain)
         except Exception as e:
-            raise Exception(f'Cannot replace. The incoming chain is invalid: {e}')
+            raise Exception(f"Cannot replace. The incoming chain is invalid: {e}")
 
         self.chain = chain
 
@@ -59,11 +60,11 @@ class Blockchain:
           - blocks must be formatted correctly
         """
         if chain[0] != Block.genesis():
-            raise Exception('The genesis block must be valid')
+            raise Exception("The genesis block must be valid")
 
         for i in range(1, len(chain)):
             block = chain[i]
-            last_block = chain[i-1]
+            last_block = chain[i - 1]
             Block.is_valid_block(last_block, block)
 
         # Blockchain.is_valid_transaction_chain(chain)
@@ -86,15 +87,15 @@ class Blockchain:
                 transaction = Transaction.from_json(transaction_json)
 
                 if transaction.id in transaction_ids:
-                    raise Exception(f'Transaction {transaction.id} is not unique')
+                    raise Exception(f"Transaction {transaction.id} is not unique")
 
                 transaction_ids.add(transaction.id)
 
                 if transaction.input == MINING_REWARD_INPUT:
                     if has_mining_reward:
                         raise Exception(
-                            'There can only be one mining reward per block. '\
-                            f'Check block with hash: {block.hash}'
+                            "There can only be one mining reward per block. "
+                            f"Check block with hash: {block.hash}"
                         )
 
                     has_mining_reward = True
@@ -102,25 +103,26 @@ class Blockchain:
                     historic_blockchain = Blockchain()
                     historic_blockchain.chain = chain[0:i]
                     historic_balance = Wallet.calculate_balance(
-                        historic_blockchain,
-                        transaction.input['address']
+                        historic_blockchain, transaction.input["address"]
                     )
 
-                    if historic_balance != transaction.input['amount']:
+                    if historic_balance != transaction.input["amount"]:
                         raise Exception(
-                            f'Transaction {transaction.id} has an invalid '\
-                            'input amount'
+                            f"Transaction {transaction.id} has an invalid "
+                            "input amount"
                         )
 
                 Transaction.is_valid_transaction(transaction)
 
+
 def main():
     blockchain = Blockchain()
-    blockchain.add_block('one')
-    blockchain.add_block('two')
+    blockchain.add_block("one")
+    blockchain.add_block("two")
 
     print(blockchain)
-    print(f'blockchain.py ___name__: {__name__}')
+    print(f"blockchain.py ___name__: {__name__}")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
