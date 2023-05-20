@@ -30,8 +30,8 @@ def test_is_valid_chain(three_blocks):
 
 
 def test_is_valid_chain_bad_genesis(three_blocks):
-    three_blocks.chain[0].hash = 'bad_hash'
-    with pytest.raises(Exception, match='The genesis block must be valid'):
+    three_blocks.chain[0].hash = "bad_hash"
+    with pytest.raises(Exception, match="The genesis block must be valid"):
         Blockchain.is_valid_chain(three_blocks.chain)
 
 
@@ -41,15 +41,14 @@ def tets_replace_chain(tree_blocks):
     assert blockchain.chain == tree_blocks.chain
 
 
-
 def test_replace_chain_not_longer(three_blocks):
     blockchain = Blockchain()
-    with pytest.raises(Exception, match='The incoming chain must be longer.'):
+    with pytest.raises(Exception, match="The incoming chain must be longer."):
         three_blocks.replace_chain(blockchain.chain)
 
 
 def test_replace_chain_bad_chain(three_blocks):
     blockchain = Blockchain()
-    three_blocks.chain[0].hash = 'bad_hash'
-    with pytest.raises(Exception, match='The incoming chain is invalid'):
+    three_blocks.chain[0].hash = "bad_hash"
+    with pytest.raises(Exception, match="The incoming chain is invalid"):
         blockchain.replace_chain(three_blocks.chain)
