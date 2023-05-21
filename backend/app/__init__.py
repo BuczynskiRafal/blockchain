@@ -1,24 +1,24 @@
 """Container for the application."""
 
 import os
+import requests
 import random
-from typing import Any
 
-import requests  # type: ignore
-from dotenv import load_dotenv
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 from backend.blockchain.blockchain import Blockchain
+from backend.wallet.wallet import Wallet
+from backend.wallet.transaction import Transaction
+from backend.wallet.transaction_pool import TransactionPool
 from backend.pubsub import PubSub
 
-load_dotenv()
-
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 blockchain = Blockchain()
-blockchain.add_block([])
-blockchain.add_block([])
-blockchain.add_block([])
-pubsub = PubSub(blockchain)
+wallet = Wallet(blockchain)
+transaction_pool = TransactionPool()
+pubsub = PubSub(blockchain, transaction_pool)
 
 
 @app.route("/")  # type: ignore
@@ -56,6 +56,26 @@ def route_blockchain_mine() -> Any:
     block = blockchain.chain[-1]
     pubsub.broadcast_block(block)
     return jsonify(block.to_json())
+
+
+@app.route("/wallet/transact", methods=["POST"])
+def route_wallet_transact():
+    transaction_data = request.get_json()
+    transaction = transaction_pool.existing_transaction(wallet.address)
+
+    if transaction:
+        transaction.update(
+            wallet, transaction_data["recipient"], transaction_data["amount"]
+        )
+    else:
+        transaction = Transaction(
+            wallet, transaction_data["recipient"], transaction_data["amount"]
+        )
+
+    pubsub.broadcast_transaction(transaction)
+    transaction_pool.set_transaction(transaction)
+
+    return jsonify(transaction.to_json())
 
 
 ROOT_PORT = 5000
