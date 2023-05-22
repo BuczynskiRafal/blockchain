@@ -25,3 +25,4 @@ repos:
         language_version: "3.10"
         additional_dependencies:
           - requests==2.25.1
+        exclude: 'tests/.*'

@@ -1,5 +1,6 @@
 import os
 import time
+from typing import Any
 
 from dotenv import load_dotenv
 from pubnub.callbacks import SubscribeCallback
@@ -18,8 +19,8 @@ pnconfig.publish_key = os.environ.get("publish_key")
 CHANNELS = {"TEST": "TEST", "BLOCK": "BLOCK", "TRANSACTION": "TRANSACTION"}
 
 
-class Listener(SubscribeCallback):
-    def __init__(self, blockchain, transaction_pool) -> None:
+class Listener(SubscribeCallback):  # type: ignore
+    def __init__(self, blockchain: Blockchain, transaction_pool: Any) -> None:
         """
         Listener for handling messages in the channels.
 
@@ -30,7 +31,7 @@ class Listener(SubscribeCallback):
         self.blockchain = blockchain
         self.transaction_pool = transaction_pool
 
-    def message(self, pubnub, message_object) -> None:
+    def message(self, pubnub, message_object) -> None:  # type: ignore
         """
         Handle new messages arriving on the channel.
 
@@ -66,7 +67,7 @@ class PubSub:
         self.pubnub = PubNub(pnconfig)
         self.pubnub.subscribe().channels(CHANNELS.values()).execute()
 
-    def publish(self, channel, message):
+    def publish(self, channel, message):  # type: ignore
         """
         Publish the message object to the channel.
 
@@ -85,27 +86,27 @@ class PubSub:
         Args:
             block (Block): The block to be broadcast.
         """
-        self.publish(CHANNELS["BLOCK"], block.to_json())
+        self.publish(CHANNELS["BLOCK"], block.to_json())  # type: ignore
 
-    def broadcast_transaction(self, transaction) -> None:
+    def broadcast_transaction(self, transaction) -> None:  # type: ignore
         """
         Broadcast a transaction to all nodes.
 
         Args:
             transaction (Transaction): The transaction to be broadcast.
         """
-        self.publish(CHANNELS["TRANSACTION"], transaction.to_json())
+        self.publish(CHANNELS["TRANSACTION"], transaction.to_json())  # type: ignore
 
 
 def main() -> None:
     """
     Main function to demonstrate the usage of the PubSub class.
     """
-    pubsub = PubSub()
+    pubsub = PubSub()  # type: ignore
 
     time.sleep(1)
 
-    pubsub.publish(CHANNELS["TEST"], {"foo": "bar"})
+    pubsub.publish(CHANNELS["TEST"], {"foo": "bar"})  # type: ignore
 
 
 if __name__ == "__main__":
