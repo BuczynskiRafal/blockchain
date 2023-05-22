@@ -1,5 +1,6 @@
 import time
 from typing import List
+
 from backend.blockchain.blockchain import Blockchain
 from backend.config import SECONDS
 

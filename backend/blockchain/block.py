@@ -1,9 +1,9 @@
 import time
 from typing import Any, List
 
+from backend.config import MINE_RATE
 from backend.utils.crypto_hash import crypto_hash
 from backend.utils.hex_to_binary import hex_to_binary
-from backend.config import MINE_RATE
 
 GENESIS_DATA = {
     "timestamp": 1,

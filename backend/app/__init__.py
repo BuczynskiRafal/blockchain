@@ -2,10 +2,12 @@
 
 import os
 import random
+from typing import Any
+
 import requests
 from dotenv import load_dotenv
 from flask import Flask, jsonify
-from typing import Any
+
 from backend.blockchain.blockchain import Blockchain
 from backend.pubsub import PubSub
 

@@ -1,9 +1,10 @@
 import os
 import time
+
 from dotenv import load_dotenv
-from pubnub.pubnub import PubNub
-from pubnub.pnconfiguration import PNConfiguration
 from pubnub.callbacks import SubscribeCallback
+from pubnub.pnconfiguration import PNConfiguration
+from pubnub.pubnub import PubNub
 
 from backend.blockchain.block import Block
 from backend.blockchain.blockchain import Blockchain
@@ -51,7 +52,7 @@ class Listener(SubscribeCallback):
             except Exception as e:
                 print(f"\n -- Did not replace chain: {e}")
         elif message_object.channel == CHANNELS["TRANSACTION"]:
-            self.transaction_pool.set_transaction(transaction)
+            # self.transaction_pool.set_transaction(transaction)
             print("\n -- Set the new transaction in the transaction pool")
 
 
@@ -86,7 +87,7 @@ class PubSub:
         """
         self.publish(CHANNELS["BLOCK"], block.to_json())
 
-    def broadcast_transaction(self, transaction: Transaction) -> None:
+    def broadcast_transaction(self, transaction) -> None:
         """
         Broadcast a transaction to all nodes.
 

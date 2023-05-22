@@ -1,7 +1,8 @@
-import pytest
 import time
 
-from backend.blockchain.block import Block, GENESIS_DATA
+import pytest
+
+from backend.blockchain.block import GENESIS_DATA, Block
 from backend.config import MINE_RATE, SECONDS
 from backend.utils.hex_to_binary import hex_to_binary
 
