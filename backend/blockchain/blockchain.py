@@ -1,4 +1,5 @@
-from typing import List, Any
+from typing import Any, List
+
 from backend.blockchain.block import Block
 
 
@@ -114,7 +115,8 @@ class Blockchain:
 
     #     Raises:
     #         Exception: If there# My response was cut off. I'll complete it now.
-    #         are duplicate transactions, more than one mining reward per block, or invalid transactions.
+    #         are duplicate transactions, more than one mining reward per block,
+    #         or invalid transactions.
     #     """
     #     transaction_ids = set()
 
