@@ -1,8 +1,11 @@
+"""Container for the application."""
+
 import os
 import random
 import requests
 from dotenv import load_dotenv
 from flask import Flask, jsonify
+from typing import Any
 from backend.blockchain.blockchain import Blockchain
 from backend.pubsub import PubSub
 
@@ -17,22 +20,40 @@ pubsub = PubSub(blockchain)
 
 
 @app.route("/")
-def route_default():
+def route_default() -> str:
+    """
+    Default route handler for the Flask application.
+
+    Returns:
+        str: Welcome message.
+    """
     return "Welcome to blockchain."
 
 
 @app.route("/blockchain")
-def route_blockchain():
+def route_blockchain() -> Any:
+    """
+    Route handler for retrieving the state of the blockchain.
+
+    Returns:
+        dict: A JSON object representing the state of the blockchain.
+    """
     return jsonify(blockchain.to_json())
 
 
 @app.route("/blockchain/mine")
-def route_blockchain_mine():
-    transaction_data = "stubbed_transacion_data"
+def route_blockchain_mine() -> Any:
+    """
+    Route handler for mining a new block in the blockchain.
+
+    Returns:
+        dict: A JSON object representing the new block.
+    """
+    transaction_data = "stubbed_transaction_data"
     blockchain.add_block(transaction_data)
     block = blockchain.chain[-1]
-    pubsub.brodcats_block(block)
-    return jsonify(blockchain.chain[-1].to_json())
+    pubsub.broadcast_block(block)
+    return jsonify(block.to_json())
 
 
 ROOT_PORT = 5000

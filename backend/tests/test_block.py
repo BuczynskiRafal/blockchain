@@ -7,6 +7,9 @@ from backend.utils.hex_to_binary import hex_to_binary
 
 
 def test_mine_block():
+    """
+    Tests the mine_block method of the Block class.
+    """
     last_block = Block.genesis()
     data = "test-data"
     block = Block.mine_block(last_block, data)
@@ -18,6 +21,9 @@ def test_mine_block():
 
 
 def test_genesis():
+    """
+    Tests the genesis method of the Block class.
+    """
     genesis = Block.genesis()
 
     assert isinstance(genesis, Block)
@@ -26,6 +32,9 @@ def test_genesis():
 
 
 def test_quickly_mined_block():
+    """
+    Tests the difficulty adjustment for quickly mined blocks.
+    """
     last_block = Block.mine_block(Block.genesis(), "foo")
     mined_block = Block.mine_block(last_block, "bar")
 
@@ -33,6 +42,9 @@ def test_quickly_mined_block():
 
 
 def test_slowly_mined_block():
+    """
+    Tests the difficulty adjustment for slowly mined blocks.
+    """
     last_block = Block.mine_block(Block.genesis(), "foo")
     time.sleep(MINE_RATE / SECONDS)
     mined_block = Block.mine_block(last_block, "bar")
@@ -41,6 +53,9 @@ def test_slowly_mined_block():
 
 
 def test_mined_block_difficulty_limits_at_1():
+    """
+    Tests that the difficulty of mined blocks cannot go below 1.
+    """
     last_block = Block(time.time_ns(), "test_last_hash", "test_hash", "test_data", 1, 0)
 
     time.sleep(MINE_RATE / SECONDS)
@@ -51,19 +66,48 @@ def test_mined_block_difficulty_limits_at_1():
 
 @pytest.fixture
 def last_block():
+    """
+    Fixture for getting a genesis block.
+
+    Returns:
+        Block: The genesis block.
+    """
     return Block.genesis()
 
 
 @pytest.fixture
 def block(last_block):
+    """
+    Fixture for getting a mined block.
+
+    Args:
+        last_block (Block): The block to base the new block on.
+
+    Returns:
+        Block: The mined block.
+    """
     return Block.mine_block(last_block, "test_data")
 
 
 def test_is_valid_block(last_block, block):
+    """
+    Tests the is_valid_block method of the Block class.
+
+    Args:
+        last_block (Block): The block before the block to test.
+        block (Block): The block to test.
+    """
     Block.is_valid_block(last_block, block)
 
 
 def test_is_valid_block_bad_last_hash(last_block, block):
+    """
+    Tests the is_valid_block method of the Block class with a bad last hash.
+
+    Args:
+        last_block (Block): The block before the block to test.
+        block (Block): The block to test.
+    """
     block.last_hash = "evil_last_hash"
 
     with pytest.raises(Exception, match="last_hash must be correct"):
@@ -71,6 +115,13 @@ def test_is_valid_block_bad_last_hash(last_block, block):
 
 
 def test_is_valid_block_bad_proof_of_work(last_block, block):
+    """
+    Tests the is_valid_block method of the Block class with a bad proof of work.
+
+    Args:
+        last_block (Block): The block before the block to test.
+        block (Block): The block to test.
+    """
     block.hash = "fff"
 
     with pytest.raises(Exception, match="proof of work requirement was not met"):
@@ -78,6 +129,13 @@ def test_is_valid_block_bad_proof_of_work(last_block, block):
 
 
 def test_is_valid_block_jumped_difficulty(last_block, block):
+    """
+    Tests the is_valid_block method of the Block class with a jumped difficulty.
+
+    Args:
+        last_block (Block): The block before the block to test.
+        block (Block): The block to test.
+    """
     jumped_difficulty = 10
     block.difficulty = jumped_difficulty
     block.hash = f'{"0" * jumped_difficulty}111abc'
@@ -87,6 +145,13 @@ def test_is_valid_block_jumped_difficulty(last_block, block):
 
 
 def test_is_valid_block_bad_block_hash(last_block, block):
+    """
+    Tests the is_valid_block method of the Block class with a bad block hash.
+
+    Args:
+        last_block (Block): The block before the block to test.
+        block (Block): The block to test.
+    """
     block.hash = "0000000000000000bbbabc"
 
     with pytest.raises(Exception, match="block hash must be correct"):

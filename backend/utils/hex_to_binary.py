@@ -21,7 +21,16 @@ HEX_TO_BINARY_CONVERSION_TABLE = {
 }
 
 
-def hex_to_binary(hex_string):
+def hex_to_binary(hex_string: str) -> str:
+    """
+    Converts a hexadecimal string to a binary string using a lookup table.
+
+    Args:
+        hex_string (str): The hexadecimal string to convert.
+
+    Returns:
+        str: The converted binary string.
+    """
     binary_string = ""
 
     for character in hex_string:
@@ -30,7 +39,10 @@ def hex_to_binary(hex_string):
     return binary_string
 
 
-def main():
+def main() -> None:
+    """
+    Main function to demonstrate the usage of hex_to_binary function.
+    """
     number = 451
     hex_number = hex(number)[2:]
     print(f"hex_number: {hex_number}")
