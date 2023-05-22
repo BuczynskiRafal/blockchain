@@ -6,6 +6,7 @@ from pubnub.pnconfiguration import PNConfiguration
 from pubnub.callbacks import SubscribeCallback
 
 from backend.blockchain.block import Block
+from backend.blockchain.blockchain import Blockchain
 
 load_dotenv()
 
@@ -17,14 +18,26 @@ CHANNELS = {"TEST": "TEST", "BLOCK": "BLOCK", "TRANSACTION": "TRANSACTION"}
 
 
 class Listener(SubscribeCallback):
-    def __init__(self, blockchain, transaction_pool):
+    def __init__(self, blockchain, transaction_pool) -> None:
+        """
+        Listener for handling messages in the channels.
+
+        Args:
+            blockchain (Blockchain): The blockchain instance.
+            transaction_pool (TransactionPool): The transaction pool instance.
+        """
         self.blockchain = blockchain
         self.transaction_pool = transaction_pool
 
-    def message(self, pubnub, message_object):
-        print(
-            f"\n-- Channel: {message_object.channel} | Message: {message_object.message}"
-        )
+    def message(self, pubnub, message_object) -> None:
+        """
+        Handle new messages arriving on the channel.
+
+        Args:
+            pubnub (PubNub): The PubNub instance.
+            message_object (MessageObject): The new message instance.
+        """
+        print(f"\n-- Channel: {message_object.channel} | Message: {message_object.message}")
 
         if message_object.channel == CHANNELS["BLOCK"]:
             block = Block.from_json(message_object.message)
@@ -48,32 +61,45 @@ class PubSub:
     Provides communication between the nodes of the blockchain network.
     """
 
-    def __init__(self, blockchain):
+    def __init__(self, blockchain: Blockchain) -> None:
         self.pubnub = PubNub(pnconfig)
         self.pubnub.subscribe().channels(CHANNELS.values()).execute()
 
     def publish(self, channel, message):
         """
         Publish the message object to the channel.
+
+        Args:
+            channel (str): The name of the channel.
+            message (dict): The message to be published.
         """
         self.pubnub.unsubscribe().channels([channel]).execute()
         self.pubnub.publish().channel(channel).message(message).sync()
         self.pubnub.subscribe().channels([channel]).execute()
 
-    def broadcast_block(self, block):
+    def broadcast_block(self, block: Block) -> None:
         """
         Broadcast a block object to all nodes.
+
+        Args:
+            block (Block): The block to be broadcast.
         """
         self.publish(CHANNELS["BLOCK"], block.to_json())
 
-    def broadcast_transaction(self, transaction):
+    def broadcast_transaction(self, transaction: Transaction) -> None:
         """
         Broadcast a transaction to all nodes.
+
+        Args:
+            transaction (Transaction): The transaction to be broadcast.
         """
         self.publish(CHANNELS["TRANSACTION"], transaction.to_json())
 
 
-def main():
+def main() -> None:
+    """
+    Main function to demonstrate the usage of the PubSub class.
+    """
     pubsub = PubSub()
 
     time.sleep(1)
