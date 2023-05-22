@@ -4,7 +4,7 @@ import os
 import random
 from typing import Any
 
-import requests
+import requests  # type: ignore
 from dotenv import load_dotenv
 from flask import Flask, jsonify
 
@@ -21,7 +21,7 @@ blockchain.add_block([])
 pubsub = PubSub(blockchain)
 
 
-@app.route("/")
+@app.route("/")  # type: ignore
 def route_default() -> str:
     """
     Default route handler for the Flask application.
@@ -32,7 +32,7 @@ def route_default() -> str:
     return "Welcome to blockchain."
 
 
-@app.route("/blockchain")
+@app.route("/blockchain")  # type: ignore
 def route_blockchain() -> Any:
     """
     Route handler for retrieving the state of the blockchain.
@@ -43,7 +43,7 @@ def route_blockchain() -> Any:
     return jsonify(blockchain.to_json())
 
 
-@app.route("/blockchain/mine")
+@app.route("/blockchain/mine")  # type: ignore
 def route_blockchain_mine() -> Any:
     """
     Route handler for mining a new block in the blockchain.

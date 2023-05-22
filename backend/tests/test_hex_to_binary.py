@@ -1,7 +1,7 @@
 from backend.utils.hex_to_binary import hex_to_binary
 
 
-def test_hex_to_binary():
+def test_hex_to_binary() -> None:
     """
     Tests the hex_to_binary function. It verifies that the binary representation of a
     hexadecimal number matches the binary representation of the original number.

@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, Dict, List
 
 from backend.blockchain.block import Block
 
@@ -52,7 +52,7 @@ class Blockchain:
 
         self.chain = chain
 
-    def to_json(self) -> List[dict]:
+    def to_json(self) -> List[Dict[Any, Any]]:
         """
         Serialize the blockchain into a list of blocks.
 
@@ -62,7 +62,7 @@ class Blockchain:
         return list(map(lambda block: block.to_json(), self.chain))
 
     @staticmethod
-    def from_json(chain_json: List[dict]) -> "Blockchain":
+    def from_json(chain_json: List[Dict[Any, Any]]) -> "Blockchain":
         """
         Deserialize a list of serialized blocks into a Blockchain instance.
         The result will contain a chain list of Block instances.

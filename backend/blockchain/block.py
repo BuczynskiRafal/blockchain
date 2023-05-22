@@ -1,5 +1,5 @@
 import time
-from typing import Any, List
+from typing import Any, Dict, List, Union
 
 from backend.config import MINE_RATE
 from backend.utils.crypto_hash import crypto_hash
@@ -28,7 +28,7 @@ class Block:
         hash: str,
         data: List[Any],
         difficulty: int,
-        nonce: str,
+        nonce: Union[str, int],
     ):
         """
         Initialize a Block instance.
@@ -39,7 +39,7 @@ class Block:
             hash (str): Hash of this block.
             data (List[Any]): Data stored in the block.
             difficulty (int): Difficulty level for proof-of-work.
-            nonce (str): Nonce value.
+            nonce Union[str, int]: Nonce value.
         """
 
         self.timestamp = timestamp
@@ -66,7 +66,7 @@ class Block:
             f"nonce: {self.nonce})"
         )
 
-    def __eq__(self, other: "Block") -> bool:
+    def __eq__(self, other: object) -> bool:
         """
         Check the equality of two blocks.
 
@@ -76,9 +76,11 @@ class Block:
         Returns:
             bool: True if blocks are equal, False otherwise.
         """
+        if not isinstance(other, Block):
+            return NotImplemented
         return self.__dict__ == other.__dict__
 
-    def to_json(self) -> dict:
+    def to_json(self) -> Dict[str, Any]:
         """
         Serialize the block into a dictionary of its attributes.
 
@@ -88,7 +90,7 @@ class Block:
         return self.__dict__
 
     @staticmethod
-    def mine_block(last_block: "Block", data: List[Any]) -> "Block":
+    def mine_block(last_block: "Block", data: Any) -> "Block":
         """
         Mine a block based on the given last_block and data, until a block hash
         is found that meets the leading 0's proof of work requirement.
@@ -122,15 +124,15 @@ class Block:
         Returns:
             Block: The genesis Block.
         """
-        return Block(**GENESIS_DATA)
+        return Block(**GENESIS_DATA)  # type: ignore
 
     @staticmethod
-    def from_json(block_json: dict) -> "Block":
+    def from_json(block_json: Dict[str, Any]) -> "Block":
         """
         Deserialize a block's json representation back into a block instance.
 
         Args:
-            block_json (dict): A JSON representation of a Block.
+            block_json (Dict): A JSON representation of a Block.
 
         Returns:
             Block: A Block instance.

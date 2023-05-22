@@ -1,7 +1,7 @@
 from backend.utils.crypto_hash import crypto_hash
 
 
-def test_crypto_hash():
+def test_crypto_hash() -> None:
     """
     Tests the crypto_hash function with various inputs. It checks whether the function
     returns consistent hashes for arguments of different data types in any order.
