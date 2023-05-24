@@ -1,10 +1,8 @@
-"""Container for the application."""
-
 import os
 import random
 
 import requests
-from flask import Flask, Response, jsonify, request
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 from backend.blockchain.blockchain import Blockchain
@@ -21,45 +19,44 @@ transaction_pool = TransactionPool()
 pubsub = PubSub(blockchain, transaction_pool)
 
 
-@app.route("/")  # type: ignore
-def route_default() -> str:
-    """
-    Default route handler for the Flask application.
-
-    Returns:
-        str: Welcome message.
-    """
-    return "Welcome to blockchain."
+@app.route("/")
+def route_default():
+    return "Welcome to the blockchain"
 
 
-@app.route("/blockchain")  # type: ignore
-def route_blockchain() -> Response:
-    """
-    Route handler for retrieving the state of the blockchain.
-
-    Returns:
-        Response: A JSON object representing the state of the blockchain.
-    """
+@app.route("/blockchain")
+def route_blockchain():
     return jsonify(blockchain.to_json())
 
 
-@app.route("/blockchain/mine")  # type: ignore
-def route_blockchain_mine() -> Response:
-    """
-    Route handler for mining a new block in the blockchain.
+@app.route("/blockchain/range")
+def route_blockchain_range():
+    # http://localhost:5000/blockchain/range?start=2&end=5
+    start = int(request.args.get("start"))
+    end = int(request.args.get("end"))
 
-    Returns:
-        Response: A JSON object representing the new block.
-    """
-    transaction_data = "stubbed_transaction_data"
+    return jsonify(blockchain.to_json()[::-1][start:end])
+
+
+@app.route("/blockchain/length")
+def route_blockchain_length():
+    return jsonify(len(blockchain.chain))
+
+
+@app.route("/blockchain/mine")
+def route_blockchain_mine():
+    transaction_data = transaction_pool.transaction_data()
+    transaction_data.append(Transaction.reward_transaction(wallet).to_json())
     blockchain.add_block(transaction_data)
     block = blockchain.chain[-1]
     pubsub.broadcast_block(block)
+    transaction_pool.clear_blockchain_transactions(blockchain)
+
     return jsonify(block.to_json())
 
 
 @app.route("/wallet/transact", methods=["POST"])
-def route_wallet_transact() -> Response:
+def route_wallet_transact():
     transaction_data = request.get_json()
     transaction = transaction_pool.existing_transaction(wallet.address)
 
@@ -72,6 +69,27 @@ def route_wallet_transact() -> Response:
     transaction_pool.set_transaction(transaction)
 
     return jsonify(transaction.to_json())
+
+
+@app.route("/wallet/info")
+def route_wallet_info():
+    return jsonify({"address": wallet.address, "balance": wallet.balance})
+
+
+@app.route("/known-addresses")
+def route_known_addresses():
+    known_addresses = set()
+
+    for block in blockchain.chain:
+        for transaction in block.data:
+            known_addresses.update(transaction["output"].keys())
+
+    return jsonify(list(known_addresses))
+
+
+@app.route("/transactions")
+def route_transactions():
+    return jsonify(transaction_pool.transaction_data())
 
 
 ROOT_PORT = 5000
@@ -89,5 +107,18 @@ if os.environ.get("PEER") == "True":
     except Exception as e:
         print(f"\n -- Error synchronizing: {e}")
 
+if os.environ.get("SEED_DATA") == "True":
+    for i in range(10):
+        blockchain.add_block(
+            [
+                Transaction(Wallet(), Wallet().address, random.randint(2, 50)).to_json(),
+                Transaction(Wallet(), Wallet().address, random.randint(2, 50)).to_json(),
+            ]
+        )
+
+    for i in range(3):
+        transaction_pool.set_transaction(
+            Transaction(Wallet(), Wallet().address, random.randint(2, 50))
+        )
 
 app.run(port=PORT)
