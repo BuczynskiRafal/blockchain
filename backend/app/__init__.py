@@ -1,17 +1,17 @@
 """Container for the application."""
 
 import os
-import requests
 import random
 
-from flask import Flask, jsonify, request
+import requests
+from flask import Flask, Response, jsonify, request
 from flask_cors import CORS
 
 from backend.blockchain.blockchain import Blockchain
-from backend.wallet.wallet import Wallet
+from backend.pubsub import PubSub
 from backend.wallet.transaction import Transaction
 from backend.wallet.transaction_pool import TransactionPool
-from backend.pubsub import PubSub
+from backend.wallet.wallet import Wallet
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
@@ -33,23 +33,23 @@ def route_default() -> str:
 
 
 @app.route("/blockchain")  # type: ignore
-def route_blockchain() -> Any:
+def route_blockchain() -> Response:
     """
     Route handler for retrieving the state of the blockchain.
 
     Returns:
-        dict: A JSON object representing the state of the blockchain.
+        Response: A JSON object representing the state of the blockchain.
     """
     return jsonify(blockchain.to_json())
 
 
 @app.route("/blockchain/mine")  # type: ignore
-def route_blockchain_mine() -> Any:
+def route_blockchain_mine() -> Response:
     """
     Route handler for mining a new block in the blockchain.
 
     Returns:
-        dict: A JSON object representing the new block.
+        Response: A JSON object representing the new block.
     """
     transaction_data = "stubbed_transaction_data"
     blockchain.add_block(transaction_data)
@@ -59,18 +59,14 @@ def route_blockchain_mine() -> Any:
 
 
 @app.route("/wallet/transact", methods=["POST"])
-def route_wallet_transact():
+def route_wallet_transact() -> Response:
     transaction_data = request.get_json()
     transaction = transaction_pool.existing_transaction(wallet.address)
 
     if transaction:
-        transaction.update(
-            wallet, transaction_data["recipient"], transaction_data["amount"]
-        )
+        transaction.update(wallet, transaction_data["recipient"], transaction_data["amount"])
     else:
-        transaction = Transaction(
-            wallet, transaction_data["recipient"], transaction_data["amount"]
-        )
+        transaction = Transaction(wallet, transaction_data["recipient"], transaction_data["amount"])
 
     pubsub.broadcast_transaction(transaction)
     transaction_pool.set_transaction(transaction)
