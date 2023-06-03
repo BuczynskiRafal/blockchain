@@ -1,6 +1,9 @@
 from typing import Any, Dict, List
 
 from backend.blockchain.block import Block
+from backend.config import MINING_REWARD_INPUT
+from backend.wallet.transaction import Transaction
+from backend.wallet.wallet import Wallet
 
 
 class Blockchain:
@@ -100,59 +103,59 @@ class Blockchain:
             last_block = chain[i - 1]
             Block.is_valid_block(last_block, block)
 
-        # Blockchain.is_valid_transaction_chain(chain)
+        Blockchain.is_valid_transaction_chain(chain)
 
-    # @staticmethod
-    # def is_valid_transaction_chain(chain: List[Block]) -> None:
-    #     """
-    #     Enforce the rules of a chain composed of blocks of transactions.
-    #         - Each transaction must only appear once in the chain.
-    #         - There can only be one mining reward per block.
-    #         - Each transaction must be valid.
+    @staticmethod
+    def is_valid_transaction_chain(chain: List[Block]) -> None:
+        """
+        Enforce the rules of a chain composed of blocks of transactions.
+            - Each transaction must only appear once in the chain.
+            - There can only be one mining reward per block.
+            - Each transaction must be valid.
 
-    #     Args:
-    #         chain (List[Block]): The Blockchain to validate.
+        Args:
+            chain (List[Block]): The Blockchain to validate.
 
-    #     Raises:
-    #         Exception: If there# My response was cut off. I'll complete it now.
-    #         are duplicate transactions, more than one mining reward per block,
-    #         or invalid transactions.
-    #     """
-    #     transaction_ids = set()
+        Raises:
+            Exception: If there# My response was cut off. I'll complete it now.
+            are duplicate transactions, more than one mining reward per block,
+            or invalid transactions.
+        """
+        transaction_ids = set()
 
-    #     for i in range(len(chain)):
-    #         block = chain[i]
-    #         has_mining_reward = False
+        for i in range(len(chain)):
+            block = chain[i]
+            has_mining_reward = False
 
-    #         for transaction_json in block.data:
-    #             transaction = Transaction.from_json(transaction_json)
+            for transaction_json in block.data:
+                transaction = Transaction.from_json(transaction_json)
 
-    #             if transaction.id in transaction_ids:
-    #                 raise Exception(f"Transaction {transaction.id} is not unique")
+                if transaction.id in transaction_ids:
+                    raise Exception(f"Transaction {transaction.id} is not unique")
 
-    #             transaction_ids.add(transaction.id)
+                transaction_ids.add(transaction.id)
 
-    #             if transaction.input == MINING_REWARD_INPUT:
-    #                 if has_mining_reward:
-    #                     raise Exception(
-    #                         "There can only be one mining reward per block. "
-    #                         f"Check block with hash: {block.hash}"
-    #                     )
+                if transaction.input == MINING_REWARD_INPUT:
+                    if has_mining_reward:
+                        raise Exception(
+                            "There can only be one mining reward per block. "
+                            f"Check block with hash: {block.hash}"
+                        )
 
-    #                 has_mining_reward = True
-    #             else:
-    #                 historic_blockchain = Blockchain()
-    #                 historic_blockchain.chain = chain[0:i]
-    #                 historic_balance = Wallet.calculate_balance(
-    #                     historic_blockchain, transaction.input["address"]
-    #                 )
+                    has_mining_reward = True
+                else:
+                    historic_blockchain = Blockchain()
+                    historic_blockchain.chain = chain[0:i]
+                    historic_balance = Wallet.calculate_balance(
+                        historic_blockchain, transaction.input["address"]
+                    )
 
-    #                 if historic_balance != transaction.input["amount"]:
-    #                     raise Exception(
-    #                         f"Transaction {transaction.id} has an invalid " "input amount"
-    #                     )
+                    if historic_balance != transaction.input["amount"]:
+                        raise Exception(
+                            f"Transaction {transaction.id} has an invalid " "input amount"
+                        )
 
-    #             Transaction.is_valid_transaction(transaction)
+                Transaction.is_valid_transaction(transaction)
 
 
 def main() -> None:

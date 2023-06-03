@@ -86,8 +86,6 @@ class Wallet:
         for block in blockchain.chain:
             for transaction in block.data:
                 if transaction["input"]["address"] == address:
-                    # Any time the address conducts a new transaction it resets
-                    # its balance
                     balance = transaction["output"][address]
                 elif address in transaction["output"]:
                     balance += transaction["output"][address]
